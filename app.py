@@ -2,7 +2,11 @@
 import streamlit as st
 import openai
 
+# Setting the page config
+st.set_page_config(page_title="Unify AI ")
+
 openai.api_key = st.secrets["OPENAI_API_KEY"]
+sheet_url = st.secrets["SHEET_URL"]
 
 # Dictionary of categories and subcategories
 categories_dict = {
@@ -65,6 +69,32 @@ categories_dict = {
     "Other": ["Conversation with [ENTITY] "]
 }
 
+# Some html formatting of the background
+html_temp = """
+                <div style="background-color:{};padding:1px">
+                
+                </div>
+                """
+
+# Creating the sidebar for additional information
+with st.sidebar:
+    st.markdown("""
+    # About the demo 🤓
+    **Hacky v1 of the Intent Recognition Pipeline** built using GPT-3.5 
+      that could be used by us for generating the training dataset 
+      for the topic modeling module of the reasoning engine. 
+    """)
+    st.markdown(html_temp.format("rgba(55, 53, 47, 0.16)"),unsafe_allow_html=True)
+    st.markdown("""
+    # More Info on the model 🤔
+    - Using the **Skyroam Technical docs** sent over by Theja, I created mappings of the categories and subcategories using ChatGPT.
+    - Combined with the **"subject" metadata** filled by the agents, this was used for checking the clustering approach.
+    - I used **OpenAI's GPT-3.5** model to extract the customer complaint from the conversations in the dataset, and fed that into the model
+    to predict the category and subcategory.
+    - This would be **superhelpful as a starting point in generating the training dataset** for the topic modeling module where we could train **one of the 
+    opensource LLMs** to be able to do this task eliminating our dependency on the ChatGPT model.
+    """)
+    st.markdown(html_temp.format("rgba(55, 53, 47, 0.16)"),unsafe_allow_html=True)
 
 # A function to extract category from the input value
 def predict_category(input_value):
@@ -76,8 +106,11 @@ def predict_category(input_value):
     stop_words = ["Solis App", "User Portal", "Device", "Other", "SIMO"]
     input_value = " ".join([word for word in input_value.split() if word not in stop_words])
 
+
     # Set up GPT-3 prompt
     prompt = f" From the following input, summarize the customer's problem in one-line. Using the given python dictionary called Categories, map the one-line summary to the corresponding category and subcategory and display them in json format \n\nCategories:\n{categories_dict} \n\n Example: \n Input: 'The consumer issue is the need for assistance in setting up a new unit' \n JSON Output: {{'Category':'Device Registration','Subcategory': 'Cannot Pair the Device'}} \n\n Input value: '{input_value}'  \n\nJSON Output:"
+
+    
 
     # Generate response from gpt-3.5-turbo
 
@@ -98,9 +131,14 @@ def predict_category(input_value):
 
     return result
 
-st.title("Predict Category and Subcategory")
+st.title("Intent Recognition Pipeline :balloon:")
+st.markdown("""
+    ##### Input a conversation or just a customer issue and get the predicted category and subcategory
+    This of this as the first layer of processing on what the customer starts the chat with. You can try out 
+    some of the conversations found in this [Google Sheet](%s) (I have hosted this privately within our workspace)
+    """ % sheet_url, unsafe_allow_html=True)
 # Take input value from the user
-input_value = st.text_input("Enter the conversation:")
+input_value = st.text_input("Enter the Input to try out the model:")
 # Display the predicted category and subcategory
 if st.button("Predict"):
     out_response = predict_category(input_value)
