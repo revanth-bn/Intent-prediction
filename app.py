@@ -77,7 +77,7 @@ def predict_category(input_value):
     input_value = " ".join([word for word in input_value.split() if word not in stop_words])
 
     # Set up GPT-3 prompt
-    prompt = f" From the following input, summarize the customer's problem in one-line. Using the given python dictionary called Categories, map the one-line summary to the corresponding category and subcategory and display them in json format \n\n Input value: '{input_value}' \n\nCategories:\n{categories_dict} \n\nJSON Output:"
+    prompt = f" From the following input, summarize the customer's problem in one-line. Using the given python dictionary called Categories, map the one-line summary to the corresponding category and subcategory and display them in json format \n\nCategories:\n{categories_dict} \n\n Example: \n Input: 'The consumer issue is the need for assistance in setting up a new unit' \n JSON Output: {{'Category':'Device Registration','Subcategory': 'Cannot Pair the Device'}} \n\n Input value: '{input_value}'  \n\nJSON Output:"
 
     # Generate response from gpt-3.5-turbo
 
